@@ -1,0 +1,44 @@
+{
+  "extends": ["group:monorepos", "group:recommended"],
+  "dependencyDashboard": true,
+  "pre-commit": {
+    "enabled": true
+  },
+  "labels": ["renovate"],
+  "rangeStrategy": "pin",
+  "rebaseWhen": "behind-base-branch",
+  "semanticCommits": "enabled",
+  "postUpdateOptions": ["gomodTidy"],
+  "regexManagers": [
+    {
+      "description": "Upgrade go version",
+      "fileMatch": [
+        "(^workflow-templates|\\.github/workflows)/[^/]+\\.ya?ml$",
+        ".golangci.yml",
+        "go.mod"
+      ],
+      "matchStrings": [
+        "# renovate: go-version\\s*go-version:\\s*\"?(?<currentValue>.*)\"?",
+        "^\\s*lang-version: \"(?<currentValue>.*)\"$",
+        "^go (?<currentValue>.*)$"
+      ],
+      "datasourceTemplate": "golang-version",
+      "depNameTemplate": "go"
+    },
+    {
+      "description": "Upgrade arbitrary go module versions in Makefiles",
+      "fileMatch": ["Makefile"],
+      "matchStrings": [
+        "^# renovate: datasource=(?<datasource>.*?)\\sdepName=(?<depName>.*?)\\s.*@(?<currentValue>.*)"
+      ]
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Automatically merge minor updates for GitHub actions and go dependencies",
+      "matchManagers": ["github-actions", "gomod"],
+      "matchUpdateTypes": ["minor", "patch"],
+      "automerge": true
+    }
+  ]
+}
